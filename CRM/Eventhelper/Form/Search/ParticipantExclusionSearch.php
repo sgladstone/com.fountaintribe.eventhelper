@@ -46,14 +46,14 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 		 * are part of the search criteria
 		 */
 		 
-		// TODO: Check user authority
-		/*
-		if (  is_user_authorized('access CiviEvent') == false ){
+		
+		// Check if user is authorized. 
+		if (  CRM_Core_Permission::check('access CiviEvent') == false ){
 			$this->setTitle('Not Authorized');
 			return;
 			 
 		}
-		*/
+		
 	
 	
 	
