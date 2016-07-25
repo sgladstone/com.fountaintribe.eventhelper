@@ -46,12 +46,14 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 		 * are part of the search criteria
 		 */
 		 
-		require_once 'utils/util_money.php';
-		if ( pogstone_is_user_authorized('access CiviEvent') == false ){
+		// TODO: Check user authority
+		/*
+		if (  is_user_authorized('access CiviEvent') == false ){
 			$this->setTitle('Not Authorized');
 			return;
 			 
 		}
+		*/
 	
 	
 	
@@ -140,13 +142,13 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 	function all( $offset = 0, $rowcount = 0, $sort = null,
 			$includeContactIDs = false, $onlyIDs = false ) {
 				 
-				// check authority of end-user
-				require_once 'utils/util_money.php';
-				if ( pogstone_is_user_authorized('access CiviEvent') == false ){
+				// TODO: check authority of end-user
+				/*
+				if (is_user_authorized('access CiviEvent') == false ){
 					return "select contact_a.id as contact_id from civicrm_contact contact_a where 1=0 ";
 					 
 				}
-				 
+				 */
 				 
 				 
 				// Force summarize by layout, for exlusion does not make sense otherwise
