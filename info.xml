@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<extension key="com.fountaintribe.eventhelper" type="module">
+  <file>eventhelper</file>
+  <name>Event Helper</name>
+  <description>Provides several custom searches, including 'Fancy Participant Search' </description>
+  <license>AGPL-3.0</license>
+  <maintainer>
+    <author>Sarah Gladstone</author>
+    <email>info@fountaintribe.com</email>
+  </maintainer>
+  <urls>
+    <url desc="Main Extension Page">http://fountaintribe.com</url>
+    <url desc="Documentation">http://fountaintribe.com</url>
+    <url desc="Support">http://fountaintribe.com</url>
+    <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
+  </urls>
+  <releaseDate>2016-07-25</releaseDate>
+  <version>1.0</version>
+  <develStage>alpha</develStage>
+  <compatibility>
+    <ver>4.5</ver>
+<ver>4.6</ver>
+<ver>4.7</ver>
+  </compatibility>
+  <comments></comments>
+  <civix>
+    <namespace>CRM/Eventhelper</namespace>
+  </civix>
+</extension>
