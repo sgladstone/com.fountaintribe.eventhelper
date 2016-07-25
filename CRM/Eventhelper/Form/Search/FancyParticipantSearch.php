@@ -3,7 +3,8 @@
 /**
  * A custom contact search
  */
-class CRM_Eventhelper_Form_Search_FancyParticipantSearch extends CRM_Contact_Form_Search_Custom_Base implements CRM_Contact_Form_Search_Interface {
+class CRM_Eventhelper_Form_Search_FancyParticipantSearch extends 
+CRM_Contact_Form_Search_Custom_Base implements CRM_Contact_Form_Search_Interface {
 	protected $_allChosenEvents = null;
 	protected $_allChosenPricesetOptions = null;
 	
@@ -1421,7 +1422,9 @@ sum(t1.actual_participant_count) as actual_participant_count, t1.label, t1.curre
 		return $dao->N;
 	}
 	 
-	function contactIDs( $offset = 0, $rowcount = 0, $sort = null) {
+	
+	// $offset = 0, $rowcount = 0, $sort = NULL, $returnSQL = false
+	function contactIDs( $offset = 0, $rowcount = 0, $sort = null, $returnSQL = false) {
 		return $this->all( $offset, $rowcount, $sort, false, true );
 	}
 	

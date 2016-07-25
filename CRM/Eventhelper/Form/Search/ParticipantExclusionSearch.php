@@ -58,11 +58,81 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 	
 	
 		/* Make sure user can filter on groups and memberships  */
-		require_once('utils/CustomSearchTools.php');
-		$searchTools = new CustomSearchTools();
+		//require_once('utils/CustomSearchTools.php');
+		//$searchTools = new CustomSearchTools();
 		//$group_ids = $searchTools->getRegularGroupsforSelectList();
 	
-		$group_ids =   CRM_Core_PseudoConstant::group();
+		$group_ids = array();
+		
+		$group_result = civicrm_api3('Group', 'get', array(
+				'sequential' => 1,
+				'is_active' => 1,
+				'is_hidden' => 0,
+				'options' => array('sort' => "title"),
+		));
+		
+		if( $group_result['is_error'] == 0 ){
+			$tmp_api_values = $group_result['values'];
+			foreach($tmp_api_values as $cur){
+				$grp_id = $cur['id'];
+		
+				$group_ids[$grp_id] = $cur['title'];
+		
+		
+			}
+		}
+		
+		
+		// get membership ids and org contact ids.
+		$mem_ids = array();
+		$org_ids = array();
+		$api_result = civicrm_api3('MembershipType', 'get', array(
+				'sequential' => 1,
+				'is_active' => 1,
+				'options' => array('sort' => "name"),
+		));
+		
+		if( $api_result['is_error'] == 0 ){
+			$tmp_api_values = $api_result['values'];
+			foreach($tmp_api_values as $cur){
+		
+				$tmp_id = $cur['id'];
+				$mem_ids[$tmp_id] = $cur['name'];
+				 
+				$org_id = $cur['member_of_contact_id'];
+				// get display name of org
+				$result = civicrm_api3('Contact', 'getsingle', array(
+						'sequential' => 1,
+						'id' => $org_id ,
+				));
+				$org_ids[$org_id] = $result['display_name'];
+		
+				 
+			}
+		
+		}
+		 
+		 
+		$form->add('select', 'group_of_contact',
+				ts('Contact is in the group(s)'),
+				$group_ids,
+				FALSE,
+				$select2style
+				);
+		
+		$form->add('select', 'membership_type_of_contact',
+				ts('Contact has the membership of type(s)'),
+				$mem_ids,
+				FALSE,
+				$select2style);
+		 
+		$form->add('select', 'membership_org_of_contact',
+				ts('Contact has Membership In'),
+				$org_ids,
+				FALSE,
+				$select2style);
+		 
+		 /*
 	
 		$form->add('select', 'group_of_contact', ts('Contact is in the group'), $group_ids, FALSE,
 				array('id' => 'group_of_contact', 'multiple' => 'multiple', 'title' => ts('-- select --'))
@@ -81,6 +151,8 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 		$form->add('select', 'membership_org_of_contact', ts('Contact has Membership In'), $org_ids, FALSE,
 				array('id' => 'membership_org_of_contact', 'multiple' => 'multiple', 'title' => ts('-- select --'))
 				);
+				
+			*/	
 		/* end of filters for groups and memberships  */
 	
 		$tmp_event_choices = self::getEventsWithParticipants();
