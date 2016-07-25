@@ -11,8 +11,8 @@ return array (
     'params' => 
     array (
       'version' => 3,
-      'label' => 'FancyParticipantSearch',
-      'description' => 'FancyParticipantSearch (com.fountaintribe.eventhelper)',
+      'label' => 'Fancy Participant Listing',
+      'description' => 'Fancy Participant Listing (com.fountaintribe.eventhelper)',
       'class_name' => 'CRM_Eventhelper_Form_Search_FancyParticipantSearch',
     ),
   ),
