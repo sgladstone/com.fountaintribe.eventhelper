@@ -930,7 +930,7 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 		return $dao->N;
 	}
 	 
-	function contactIDs( $offset = 0, $rowcount = 0, $sort = null) {
+	function contactIDs( $offset = 0, $rowcount = 0, $sort = null,  $returnSQL = false) {
 		return $this->all( $offset, $rowcount, $sort, false, true );
 	}
 	 

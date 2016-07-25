@@ -2,7 +2,19 @@
 <extension key="com.fountaintribe.eventhelper" type="module">
   <file>eventhelper</file>
   <name>Event Helper</name>
-  <description>Provides several custom searches, including 'Fancy Participant Search' </description>
+  <description>Provides several custom searches, including 'Fancy Participant Search'
+  Fancy Participant can easily list just the participants who choose "session AAA"  from your priceset options and send them all an email or SMS/Text message.  Or get the total count of participants for priceset option "session BBB" so you know how many chairs and snacks you need to set up. 
+
+Current Features: 
+
+Filter/view individual priceset options. (Such as search on participants who registered for a certain priceset session.)
+Choice of 3 layouts: one row per participant, or one row per line item, or summary totals for each line item option.
+Choose which columns to include in the results
+Includes memberhsip type and membership status in the results
+Includes information about who the participant was registered by.
+Includes age of the participant.
+You can control the date used to calculate the age, such as using Sept. 1 for school/youth events.
+ </description>
   <license>AGPL-3.0</license>
   <maintainer>
     <author>Sarah Gladstone</author>
