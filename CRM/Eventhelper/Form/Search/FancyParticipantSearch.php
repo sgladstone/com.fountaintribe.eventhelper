@@ -22,8 +22,11 @@ CRM_Contact_Form_Search_Custom_Base implements CRM_Contact_Form_Search_Interface
 		parent::__construct( $formValues );
 	
 	
-	
-		$tmp_option_value_raw =   $this->_formValues['event_id'] ;
+		if(isset( $this->_formValues['event_id'] )){
+			$tmp_option_value_raw =   $this->_formValues['event_id'] ;
+		}else{
+			$tmp_option_value_raw = "";
+		}
 	
 	
 		$this->_userChoices = $tmp_option_value_raw;
@@ -35,7 +38,10 @@ CRM_Contact_Form_Search_Custom_Base implements CRM_Contact_Form_Search_Interface
 			foreach ($this->_userChoices as $dontCare => $curUserChoice ) {
 				$tmp_cur = split('_' ,$curUserChoice );
 				$tmp_all_events[] = $tmp_cur[0];
-				$tmp_all_priceset_options[] = $tmp_cur[1];
+				if( count( $tmp_cur )  > 1 ){
+					$tmp_all_priceset_options[] = $tmp_cur[1];
+				}
+			
 			}
 		}
 	
@@ -43,8 +49,9 @@ CRM_Contact_Form_Search_Custom_Base implements CRM_Contact_Form_Search_Interface
 		$this->_allChosenEvents  = $tmp_all_events ;
 		$this->_allChosenPricesetOptions = $tmp_all_priceset_options;
 	
-		$this->_layoutChoice = $this->_formValues['layout_choice'] ;
-	
+		if(isset($this->_formValues['layout_choice'])){
+			$this->_layoutChoice = $this->_formValues['layout_choice'] ;
+		}
 	
 		$this->setColumns( );
 	
@@ -59,7 +66,7 @@ CRM_Contact_Form_Search_Custom_Base implements CRM_Contact_Form_Search_Interface
 	
 	
 	function priceSetDAO( $eventID = null ) {
-	
+		$sql_eid_list = "";
 		// get all the events that have a price set associated with it
 		$sql = "
 SELECT e.id    as id,
@@ -256,13 +263,14 @@ AND    p.entity_id    = e.id
 	
 	function setColumns( ) {
 	
+		$tmp_priceset_id = "";
+		
 		if($this->_layoutChoice == 'summary'){
 			$this->_columns = array(
-					//ts('Count') => 'rec_count',
 					ts('Total Quantity') => 'total_qty',
 					ts('Total Amount') => 'total_amount',
 					//	ts('Actual Participant Count') => 'actual_participant_count',
-		  	ts('Unit Price') => 'unit_price',
+		  			ts('Unit Price') => 'unit_price',
 					ts('Label') => 'label',
 					ts('Currency') => 'currency',
 					ts('Event Title') => 'event_title',
@@ -285,8 +293,7 @@ AND    p.entity_id    = e.id
 					ts('Last Name') => 'last_name',
 					ts('Age') => 'age',
 					ts('Item')  => 'label',
-					ts('Total Amount')    => 'line_total',
-					 
+					ts('Total Amount')    => 'line_total',		 
 					ts('Quantity')	       => 'qty',
 					ts('Unit Price')	=> 'unit_price',
 					ts('Register Date')    => 'register_date',
@@ -295,7 +302,6 @@ AND    p.entity_id    = e.id
 					ts('Membership Type') => 'membership_type',
 					ts('Membership Status') => 'membership_status',
 					ts('Participant Note') => 'part_note',
-					//  ts('Number of Memberships') => 'num_memberships',
 					ts('Email') 	       => 'email',
 					ts('Phone')	       => 'phone',
 					ts('Address' )	=> 'street_address',
@@ -315,7 +321,7 @@ AND    p.entity_id    = e.id
 			$all_columns_to_display =  $this->util_get_all_column_names_to_display();
 	
 			$check_columns_to_display = false;
-			if($user_columns_to_display.is_array() && count($user_columns_to_display) > 0 ){
+			if(is_array($user_columns_to_display) && count($user_columns_to_display) > 0 ){
 				$check_columns_to_display = true;
 			}
 			 
@@ -358,9 +364,9 @@ AND    p.entity_id    = e.id
 		 
 	
 	
-		if( $this->_eventID == 'event'){
-			return;
-		}
+		//if( $this->_eventID == 'event'){
+		//	return;
+		//}
 	
 		 
 	
@@ -1107,7 +1113,11 @@ LEFT JOIN civicrm_price_field pf ON li.price_field_id = pf.id
 		$tmp_where = '';
 		$partial_sql = '';
 		 
-		$filter_type =  $this->_formValues['filter_type'] ;
+		if(isset($this->_formValues['filter_type'] )){
+			$filter_type =  $this->_formValues['filter_type'] ;
+		}else{
+			$filter_type = "";
+		}
 		//  print "<br>Filter type: ".$filter_type;
 		if($filter_type == 'priceset_items'){
 	
@@ -1247,7 +1257,12 @@ LEFT JOIN civicrm_price_field pf ON li.price_field_id = pf.id
 		// li_224_522.price_field_id = '224'
 		// li_224_522.price_field_value_id = '522'
 		$layout_choice =  $this->_formValues['layout_choice'];
-		$line_item_id =  $this->_formValues['lineitem_id'];
+		
+		if(isset($this->_formValues['lineitem_id'])){
+			$line_item_id =  $this->_formValues['lineitem_id'];
+		}else{
+			$line_item_id = "";
+		}
 		$tmp_li_sql = "";
 		// print_r($line_item_id);
 		if(is_array( $line_item_id ) && count( $line_item_id ) > 0 ){
@@ -1438,7 +1453,9 @@ sum(t1.actual_participant_count) as actual_participant_count, t1.label, t1.curre
 	
 	function alterRow( &$row ) {
 	
-		$row['participant_link'] = "<a href='/civicrm/contact/view/participant?reset=1&id=".$row['participant_id']."&cid=".$row['contact_id']."&action=view&context=participant&selectedChild=event'>View Participant</a>";
+		if( isset( $row['participant_id'] )){
+			$row['participant_link'] = "<a href='/civicrm/contact/view/participant?reset=1&id=".$row['participant_id']."&cid=".$row['contact_id']."&action=view&context=participant&selectedChild=event'>View Participant</a>";
+		}
 		//	$participant_url =" /civicrm/contact/view/participant?reset=1&id=31&cid=176&action=view&context=participant&selectedChild=event";
 	
 	}

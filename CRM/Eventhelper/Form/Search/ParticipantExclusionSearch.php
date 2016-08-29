@@ -111,7 +111,15 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 			}
 		
 		}
-		 
+		
+		$select2style = array(
+				'multiple' => TRUE,
+				'style' => 'width: 100%; max-width: 60em;',
+				'class' => 'crm-select2',
+				'placeholder' => ts('- select -'),
+		);
+		
+		
 		 
 		$form->add('select', 'group_of_contact',
 				ts('Contact is in the group(s)'),
@@ -181,7 +189,7 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 	
 	function setColumns( ) {
 	
-		$this->_columns = array( ts('' )    		=> 'contact_image',
+		$this->_columns = array(
 				ts('Name') 		=> 'sort_name',
 				ts('Age')		=> 'age',
 				ts('Phone') 		=> 'phone',
@@ -490,6 +498,8 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 	function get_sql_contacts_to_include(){
 		$tmp_from = "";
 		$tmp_group_join = "";
+		$tmp_from_sql = "";
+		$tmp_email_join = "";
 		 
 		 
 		/*
@@ -503,9 +513,14 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 	
 		 // done dealing with households
 		 */
-		 
-		$ageDate = CRM_Utils_Date::processDate( $this->_formValues['age_date'] );
-		if ( $ageDate ) {
+		
+		
+		if( isset(  $this->_formValues['age_date'] )){ 
+			$ageDate = CRM_Utils_Date::processDate( $this->_formValues['age_date'] );
+		}else{
+			$ageDate = ""; 
+		}
+		if ( strlen($ageDate) > 0  ) {
 			$yyyy = substr( $ageDate , 0, 4);
 			$mm = substr( $ageDate , 4, 2);
 			$dd = substr( $ageDate , 6, 2);
@@ -537,8 +552,9 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 			 
 		}
 	
+		
 		 
-		if(strlen( $comm_prefs = $this->_formValues['comm_prefs']) > 0  ){
+		if(isset( $this->_formValues['comm_prefs'] ) && strlen( $comm_prefs = $this->_formValues['comm_prefs']) > 0  ){
 			$tmp_email_join = "LEFT JOIN civicrm_email ON contact_a.id = civicrm_email.contact_id AND civicrm_email.is_primary = 1 ";
 		}
 		$tmp_from = " civicrm_contact contact_a
@@ -555,21 +571,31 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 		$clauses[] = "contact_a.is_deleted <> 1";
 		$clauses[] = "contact_a.is_deceased <> 1";
 	
-		$oc_month_start = $this->_formValues['oc_month_start'] ;
-		$oc_month_end = $this->_formValues['oc_month_end'] ;
-	
-		$oc_day_start = $this->_formValues['oc_day_start'];
-		$oc_day_end = $this->_formValues['oc_day_end'];
-	
+		if( isset( $this->_formValues['oc_month_start'] )){
+			$oc_month_start = $this->_formValues['oc_month_start'] ;
+		}
+		
+		if(isset( $this->_formValues['oc_month_end'] )){
+			$oc_month_end = $this->_formValues['oc_month_end'] ;
+		}
+		
+		if(isset(  $this->_formValues['oc_day_start'] )){
+			$oc_day_start = $this->_formValues['oc_day_start'];
+		}
+		
+		if(isset( $this->_formValues['oc_day_end'] )){
+			$oc_day_end = $this->_formValues['oc_day_end'];
+		}
 	
 		$groups_of_individual = $this->_formValues['group_of_contact'];
 	
 		require_once('utils/CustomSearchTools.php');
 		$searchTools = new CustomSearchTools();
 	
-	
-		$comm_prefs = $this->_formValues['comm_prefs'];
-	
+		if(isset( $this->_formValues['comm_prefs'])){
+			$comm_prefs = $this->_formValues['comm_prefs'];
+		}
+		
 		$searchTools->updateWhereClauseForCommPrefs($comm_prefs, $clauses ) ;
 	
 		$tmp_sql_list = $searchTools->getSQLStringFromArray($groups_of_individual);
@@ -604,8 +630,8 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 	
 		}
 	
-	
-		if ( $includeContactIDs ) {
+	    
+		if (isset( $includeContactIDs ) &&  $includeContactIDs ) {
 			$contactIDs = array( );
 			foreach ( $this->_formValues as $id => $value ) {
 				if ( $value &&
@@ -657,8 +683,11 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 		 
 	
 		// Now check user contrib type filter
-		 
-		$contrib_type_ids = $this->_formValues['contrib_type'] ;
+		if( isset( $this->_formValues['contrib_type'] )){ 
+			$contrib_type_ids = $this->_formValues['contrib_type'] ;
+		}else{
+			$contrib_type_ids = "";
+		}
 	
 		if( ! is_array($contrib_type_ids)){
 			 
@@ -688,8 +717,12 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 		}
 	
 		// Check user choice of accounting code.
-		$accounting_codes = $this->_formValues['accounting_code'] ;
-	
+		if( isset( $this->_formValues['accounting_code'] )){
+			$accounting_codes = $this->_formValues['accounting_code'] ;
+		}else{
+			$accounting_codes = ""; 
+			
+		}
 		if( ! is_array($accounting_codes)){
 			 
 			//print "<br>No accounting code selected.";
@@ -726,7 +759,7 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 		}
 	
 	
-	
+		/*	
 		$balance_choice = $this->_formValues['balance_choice'] ;
 		//print "<br>balance choice: ".$balance_choice;
 		if(strcmp($balance_choice, 'open_balances') == 0){
@@ -737,6 +770,8 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 	
 	
 		}
+		*/
+		
 	
 	
 		// filter for f1.rec_date
