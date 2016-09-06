@@ -230,13 +230,10 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 				// Force summarize by layout, for exlusion does not make sense otherwise
 	
 				 
-				 
-				// make sure selected smart groups are cached in the cache table
+		
 				$group_of_contact = $this->_formValues['group_of_contact'];
 	
-				require_once('utils/CustomSearchTools.php');
-				$searchTools = new CustomSearchTools();
-				$searchTools::verifyGroupCacheTable($group_of_contact ) ;
+				
 				 
 				$where = $this->where();
 	
@@ -392,18 +389,17 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 	
 	
 	
-		require_once('utils/CustomSearchTools.php');
-		$searchTools = new CustomSearchTools();
+		
 	
 		$event_ids_tmp = $this->_formValues['event_id'];
-		$event_ids_sql_list = $searchTools->getSQLStringFromArray($event_ids_tmp);
+		$event_ids_sql_list = implode( "," , $event_ids_tmp);
 		if(strlen($event_ids_sql_list) > 0 ){
 			$clauses[] = "( e.id IN (".$event_ids_sql_list." )   )";
 	
 		}
 	
 		$event_types_tmp = $this->_formValues['event_types'];
-		$event_types_sql = $searchTools->getSQLStringFromArray( $event_types_tmp );
+		$event_types_sql = implode( ",", $event_types_tmp );
 		if(strlen($event_types_sql) > 0 ){
 			$clauses[] = "( e.event_type_id IN (".$event_types_sql." )   )";
 	
@@ -411,7 +407,7 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 	
 	
 		$groups_of_individual = $this->_formValues['group_of_contact'];
-		$tmp_sql_list = $searchTools->getSQLStringFromArray($groups_of_individual);
+		$tmp_sql_list = implode( ",", $groups_of_individual);
 		if(strlen($tmp_sql_list) > 0 ){
 	
 			// need to check regular groups as well as smart groups.
@@ -423,7 +419,7 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 		$membership_types_of_con = $this->_formValues['membership_type_of_contact'];
 	
 	
-		$tmp_membership_sql_list = $searchTools->convertArrayToSqlString( $membership_types_of_con ) ;
+		$tmp_membership_sql_list = implode( ",",  $membership_types_of_con ) ;
 		if(strlen($tmp_membership_sql_list) > 0 ){
 			$clauses[] = "memberships.membership_type_id IN (".$tmp_membership_sql_list.")" ;
 			$clauses[] = "mem_status.is_current_member = '1'";
@@ -433,7 +429,7 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 	
 		// 'membership_org_of_contact'
 		$membership_org_of_con = $this->_formValues['membership_org_of_contact'];
-		$tmp_membership_org_sql_list = $searchTools->convertArrayToSqlString( $membership_org_of_con ) ;
+		$tmp_membership_org_sql_list = implode( ",",  $membership_org_of_con ) ;
 		if(strlen($tmp_membership_org_sql_list) > 0 ){
 	
 			$clauses[] = "mt.member_of_contact_id IN (".$tmp_membership_org_sql_list.")" ;
@@ -591,16 +587,16 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 	
 		$groups_of_individual = $this->_formValues['group_of_contact'];
 	
-		require_once('utils/CustomSearchTools.php');
-		$searchTools = new CustomSearchTools();
+		
 	
 		if(isset( $this->_formValues['comm_prefs'])){
 			$comm_prefs = $this->_formValues['comm_prefs'];
 		}
 		
-		$searchTools->updateWhereClauseForCommPrefs($comm_prefs, $clauses ) ;
+		// TODO: filter on communication pref.
+		//$searchTools->updateWhereClauseForCommPrefs($comm_prefs, $clauses ) ;
 	
-		$tmp_sql_list = $searchTools->getSQLStringFromArray($groups_of_individual);
+		$tmp_sql_list = implode( "," , $groups_of_individual);
 		if(strlen($tmp_sql_list) > 0 ){
 	
 			// need to check regular groups as well as smart groups.
@@ -612,7 +608,7 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 		$membership_types_of_con = $this->_formValues['membership_type_of_contact'];
 	
 	
-		$tmp_membership_sql_list = $searchTools->convertArrayToSqlString( $membership_types_of_con ) ;
+		$tmp_membership_sql_list = implode( "," , $membership_types_of_con ) ;
 		if(strlen($tmp_membership_sql_list) > 0 ){
 			$clauses[] = "memberships.membership_type_id IN (".$tmp_membership_sql_list.")" ;
 			$clauses[] = "mem_status.is_current_member = '1'";
@@ -622,7 +618,7 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 	
 		// 'membership_org_of_contact'
 		$membership_org_of_con = $this->_formValues['membership_org_of_contact'];
-		$tmp_membership_org_sql_list = $searchTools->convertArrayToSqlString( $membership_org_of_con ) ;
+		$tmp_membership_org_sql_list = implode( "," , $membership_org_of_con ) ;
 		if(strlen($tmp_membership_org_sql_list) > 0 ){
 	
 			$clauses[] = "mt.member_of_contact_id IN (".$tmp_membership_org_sql_list.")" ;
