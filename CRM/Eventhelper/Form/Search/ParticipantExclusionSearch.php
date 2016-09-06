@@ -58,39 +58,32 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 	
 	
 		/* Make sure user can filter on groups and memberships  */
-		//require_once('utils/CustomSearchTools.php');
-		//$searchTools = new CustomSearchTools();
-		//$group_ids = $searchTools->getRegularGroupsforSelectList();
-	
-		$group_ids = array();
 		
-		$group_result = civicrm_api3('Group', 'get', array(
+		$group_ids =  CRM_Core_PseudoConstant::nestedGroup();
+		
+		$cur_domain_id = "-1";
+		
+		$result = civicrm_api3('Domain', 'get', array(
 				'sequential' => 1,
-				'is_active' => 1,
-				'is_hidden' => 0,
-				'options' => array('sort' => "title"),
+				'current_domain' => "",
 		));
 		
-		if( $group_result['is_error'] == 0 ){
-			$tmp_api_values = $group_result['values'];
-			foreach($tmp_api_values as $cur){
-				$grp_id = $cur['id'];
-		
-				$group_ids[$grp_id] = $cur['title'];
-		
-		
-			}
+		if( $result['is_error'] == 0 ){
+			$cur_domain_id = $result['id'];
+			 
 		}
-		
-		
+		 
 		// get membership ids and org contact ids.
 		$mem_ids = array();
 		$org_ids = array();
 		$api_result = civicrm_api3('MembershipType', 'get', array(
 				'sequential' => 1,
 				'is_active' => 1,
+				'domain_id' =>  $cur_domain_id ,
 				'options' => array('sort' => "name"),
 		));
+		
+		
 		
 		if( $api_result['is_error'] == 0 ){
 			$tmp_api_values = $api_result['values'];
@@ -111,6 +104,9 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 			}
 		
 		}
+		
+		
+		
 		
 		$select2style = array(
 				'multiple' => TRUE,
@@ -265,7 +261,13 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 				}
 				$sql_inner = self::get_sql_contacts_to_include();
 	
-				// print "<br><br> inner sql: ".$sql_inner;
+				// Check if current user is restricted to certain contacts by ACLs.
+				$acl_sql_fragment  = CRM_Contact_BAO_Contact_Permission::cacheSubquery();
+				if( strlen( $acl_sql_fragment ) > 0 ){
+				
+					$sql_where_fragment_for_acl = " AND (  contact_a.id ".$acl_sql_fragment." ) ";
+				}
+				 
 				 
 				 
 				 
@@ -280,7 +282,7 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 				WHERE contact_b.contact_id NOT IN ( ".$sql_inner_participants." )
 	AND contact_a.contact_type = 'Individual'
 	AND contact_a.is_deleted <> 1
-	AND contact_a.is_deceased <> 1
+	AND contact_a.is_deceased <> 1 ".$sql_where_fragment_for_acl." 
 	GROUP BY contact_id ";
 	
 	
@@ -852,6 +854,14 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 			}
 			}
 			*/
+		
+		// Check if current user is restricted to certain contacts by ACLs.
+		$acl_sql_fragment  = CRM_Contact_BAO_Contact_Permission::cacheSubquery();
+		if( strlen( $acl_sql_fragment ) > 0 ){
+		
+			$clauses[] = "  (  contact_a.id ".$acl_sql_fragment." ) ";
+		}
+		 
 	
 		if(count($clauses) > 0){
 			$partial_where_clause = implode( ' AND ', $clauses );

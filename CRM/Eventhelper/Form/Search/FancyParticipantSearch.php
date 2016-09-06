@@ -1344,6 +1344,14 @@ LEFT JOIN civicrm_price_field pf ON li.price_field_id = pf.id
 	
 		$clauses[]  = " (p.is_test <> 1 ) " ;
 		$clauses[]  = " (contact_a.is_deleted <> 1) ";
+		
+		// Check if current user is restricted to certain contacts by ACLs.
+		$acl_sql_fragment  = CRM_Contact_BAO_Contact_Permission::cacheSubquery();
+		if( strlen( $acl_sql_fragment ) > 0 ){
+		
+			$clauses[] = "  (  contact_a.id ".$acl_sql_fragment." ) ";
+		}
+		 
 		 
 	
 		 
