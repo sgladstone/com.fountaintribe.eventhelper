@@ -18,10 +18,14 @@ CRM_Contact_Form_Search_Custom_Base implements CRM_Contact_Form_Search_Interface
 	
 	protected $_all_column_names = null;
 	
+	public $_permissionedComponent;
+	
 	function __construct( &$formValues ) {
 		parent::__construct( $formValues );
 	
 	
+		$this->_permissionedComponent = 'CiviEvent';
+		
 		if(isset( $this->_formValues['event_id'] )){
 			$tmp_option_value_raw =   $this->_formValues['event_id'] ;
 		}else{
@@ -171,18 +175,42 @@ AND    p.entity_id    = e.id
 		$dao->free();
 	
 	
-		 
+		/* 
 		$form->add('select', 'event_id', ts('Event(s)'), $tmpEventIds, TRUE,
 				array('id' => 'event_id', 'multiple' => 'multiple', 'title' => ts('-- select --'))
 				);
-		 
+				*/
+		
+		$select2style = array(
+				'multiple' => TRUE,
+				'style' => 'width: 100%; max-width: 60em;',
+				'class' => 'crm-select2',
+				'placeholder' => ts('- select -'),
+		);
+		
+		
+			
+		$form->add('select', 'event_id',
+				ts('Event(s)'),
+				$tmpEventIds,
+				TRUE,
+				$select2style
+				);
 		 
 		if(count($this->_allChosenEvents ) > 0 ){
 	
 			$line_item_choices = self::getLineItemChoicesForEvents( );
+			
+			$form->add('select', 'lineitem_id',
+					ts('Line Item(s)'),
+					$line_item_choices,
+					FALSE,
+					$select2style);
+			/*
 			$form->add('select', 'lineitem_id', ts('Line Item(s)'), $line_item_choices, FALSE,
 					array('id' => 'lineitem_id', 'multiple' => 'multiple', 'title' => ts('-- select --'))
 					);
+					*/
 			 
 		}
 		 
@@ -215,10 +243,16 @@ AND    p.entity_id    = e.id
 		$this->util_get_all_column_names_to_display();
 		$tmp_all_columns = $this->_all_column_names;
 		 
-		 
+		/* 
 		$form->add('select', 'user_columns_to_display', ts('Columns to Display'), $tmp_all_columns, FALSE,
 				array('id' => 'user_columns_to_display', 'multiple' => 'multiple', 'title' => ts('-- select --'))
 				);
+				*/
+		$form->add('select', 'user_columns_to_display',
+				ts('Columns to Display'),
+				$tmp_all_columns,
+				FALSE,
+				$select2style);
 	
 		$form->addDate('start_date', ts('Registration Date From'), false, array( 'formatType' => 'custom' ) );
 	

@@ -9,11 +9,13 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 
 	protected $_formValues;
 	protected $groupby_string ;
+	public $_permissionedComponent;
+	
 	
 	function __construct( &$formValues ) {
 		parent::__construct( $formValues );
 	
-		 
+		$this->_permissionedComponent = 'CiviEvent';
 	
 		$this->setColumns( );
 	
@@ -45,66 +47,17 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 		 * if you are using the standard template, this array tells the template what elements
 		 * are part of the search criteria
 		 */
-		 
-		
-		// Check if user is authorized. 
-		if (  CRM_Core_Permission::check('access CiviEvent') == false ){
-			$this->setTitle('Not Authorized');
-			return;
-			 
-		}
-		
-	
 	
 	
 		/* Make sure user can filter on groups and memberships  */
 		
 		$group_ids =  CRM_Core_PseudoConstant::nestedGroup();
 		
-		$cur_domain_id = "-1";
-		
-		$result = civicrm_api3('Domain', 'get', array(
-				'sequential' => 1,
-				'current_domain' => "",
-		));
-		
-		if( $result['is_error'] == 0 ){
-			$cur_domain_id = $result['id'];
-			 
-		}
-		 
-		// get membership ids and org contact ids.
 		$mem_ids = array();
 		$org_ids = array();
-		$api_result = civicrm_api3('MembershipType', 'get', array(
-				'sequential' => 1,
-				'is_active' => 1,
-				'domain_id' =>  $cur_domain_id ,
-				'options' => array('sort' => "name"),
-		));
 		
-		
-		
-		if( $api_result['is_error'] == 0 ){
-			$tmp_api_values = $api_result['values'];
-			foreach($tmp_api_values as $cur){
-		
-				$tmp_id = $cur['id'];
-				$mem_ids[$tmp_id] = $cur['name'];
-				 
-				$org_id = $cur['member_of_contact_id'];
-				// get display name of org
-				$result = civicrm_api3('Contact', 'getsingle', array(
-						'sequential' => 1,
-						'id' => $org_id ,
-				));
-				$org_ids[$org_id] = $result['display_name'];
-		
-				 
-			}
-		
-		}
-		
+		require_once( 'CRM/Eventhelper/Form/EventFilterHelper.php');
+		EventFilterHelper::fillMembershipTypeArrays( $mem_ids,  $org_ids);
 		
 		
 		
@@ -136,39 +89,35 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 				FALSE,
 				$select2style);
 		 
-		 /*
-	
-		$form->add('select', 'group_of_contact', ts('Contact is in the group'), $group_ids, FALSE,
-				array('id' => 'group_of_contact', 'multiple' => 'multiple', 'title' => ts('-- select --'))
-				);
-	
-	
-		$mem_ids = $searchTools->getMembershipsforSelectList();
-	
-	
-	
-		$form->add('select', 'membership_type_of_contact', ts('Contact has the membership of type'), $mem_ids, FALSE,
-				array('id' => 'membership_type_of_contact', 'multiple' => 'multiple', 'title' => ts('-- select --'))
-				);
-	
-		$org_ids = $searchTools->getMembershipOrgsforSelectList();
-		$form->add('select', 'membership_org_of_contact', ts('Contact has Membership In'), $org_ids, FALSE,
-				array('id' => 'membership_org_of_contact', 'multiple' => 'multiple', 'title' => ts('-- select --'))
-				);
-				
-			*/	
-		/* end of filters for groups and memberships  */
+		 
 	
 		$tmp_event_choices = self::getEventsWithParticipants();
-		$form->add('select', 'event_id', ts('Event(s)'), $tmp_event_choices, FALSE,
+	
+		$form->add('select', 'event_id',
+				ts('Event(s)'),
+				$tmp_event_choices,
+				FALSE,
+				$select2style);
+		
+		/*
+		 $form->add('select', 'event_id', ts('Event(s)'), $tmp_event_choices, FALSE,
 				array('id' => 'event_id', 'multiple' => 'multiple', 'title' => ts('-- select --'))
 				);
-		 
+		 */
 		 
 		$tmp_event_types = self::get_event_types();
+		
+		$form->add('select', 'event_types',
+				ts('Event Type(s)'),
+				$tmp_event_types,
+				FALSE,
+				$select2style);
+		
+		/*
 		$form->add('select', 'event_types', ts('Event Type(s)'), $tmp_event_types, FALSE,
 				array('id' => 'event_types', 'multiple' => 'multiple', 'title' => ts('-- select --'))
 				);
+				*/
 	
 		 
 		$form->addDate('start_date', ts('Events From'), false, array( 'formatType' => 'custom' ) );
@@ -263,6 +212,8 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 				if( strlen( $acl_sql_fragment ) > 0 ){
 				
 					$sql_where_fragment_for_acl = " AND (  contact_a.id ".$acl_sql_fragment." ) ";
+				}else{
+					$sql_where_fragment_for_acl = ""; 
 				}
 				 
 				 
