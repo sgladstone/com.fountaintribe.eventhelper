@@ -40,7 +40,7 @@ CRM_Contact_Form_Search_Custom_Base implements CRM_Contact_Form_Search_Interface
 	
 		if(is_array($this->_userChoices)){
 			foreach ($this->_userChoices as $dontCare => $curUserChoice ) {
-				$tmp_cur = split('_' ,$curUserChoice );
+				$tmp_cur = explode('_' ,$curUserChoice );
 				$tmp_all_events[] = $tmp_cur[0];
 				if( count( $tmp_cur )  > 1 ){
 					$tmp_all_priceset_options[] = $tmp_cur[1];
