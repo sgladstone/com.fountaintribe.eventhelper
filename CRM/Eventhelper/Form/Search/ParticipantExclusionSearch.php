@@ -51,7 +51,7 @@ class CRM_Eventhelper_Form_Search_ParticipantExclusionSearch extends CRM_Contact
 	
 		/* Make sure user can filter on groups and memberships  */
 		
-		$group_ids =  CRM_Core_PseudoConstant::nestedGroup();
+		$group_ids =  CRM_Core_PseudoConstant::nestedGroup(TRUE, NULL, TRUE, "plain");
 		
 		$mem_ids = array();
 		$org_ids = array();
